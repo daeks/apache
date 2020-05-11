@@ -56,6 +56,8 @@ RUN set -x &&\
   apt-get clean autoclean &&\
   apt-get autoremove -y &&\
   rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*^
+  
+HEALTHCHECK CMD curl -f http://localhost/ || exit 1
 
 WORKDIR $APACHE_WWW_DIR
 VOLUME $APACHE_WWW_DIR
