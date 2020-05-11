@@ -45,7 +45,7 @@ COPY ./configs/php.ini ${PHP_CONF_DIR}/apache2/conf.d/custom.ini
 COPY ./configs/php.ini ${PHP_CONF_DIR}/cli/conf.d/custom.ini
 
 COPY ./scripts /tmp$APACHE_WWW_DIR
-RUN if [ "$GIT" = "OFF" ]; then mv /tmp$APACHE_WWW_DIR/* $APACHE_WWW_DIR; fi
+RUN if [ "$GIT" = "OFF" ]; then mv -f /tmp$APACHE_WWW_DIR/* $APACHE_WWW_DIR; fi
 RUN if [ "$GIT" != "OFF" ]; then git clone $GIT_URL $APACHE_WWW_DIR/; fi
 
 COPY ./configs/crontab /etc/cron/crontab
