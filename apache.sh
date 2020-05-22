@@ -9,37 +9,65 @@ if [ -f $APACHE_CUSTOM_DIR/extension ]; then
   source $APACHE_CUSTOM_DIR/extension
 fi
 
-if [ ! -z "$DOMAIN" ] && [ ! -z "$EMAIL" ]; then
-  if [ ! -f $CERTBOT_CONF_DIR/live/$DOMAIN/cert.pem ]; then
-    certbot certonly --no-self-upgrade --agree-tos --noninteractive --standalone \
-      --work-dir $CERTBOT_WORK_DIR --config-dir $CERTBOT_CONF_DIR --logs-dir $CERTBOT_LOG_DIR \
-      -m $EMAIL -d $DOMAIN
-    
-    if [ -f $CERTBOT_CONF_DIR/live/$DOMAIN/cert.pem ]; then
-      a2dissite 000-custom-default
-      rm -f $APACHE_CONF_DIR/sites-available/000-custom-default.conf
-    
-      a2enmod rewrite && a2enmod ssl
-      
-      a2dissite default-ssl
-      rm -f $APACHE_CONF_DIR/sites-available/default-ssl.conf
-      
-      a2ensite 000-custom-default-redirect
-      a2ensite 000-custom-default-ssl
-    else
-      a2ensite 000-custom-default
+if [ ! -z "$CUSTOM" ] && [ ! -z "$EMAIL" ]; then
+  a2dissite 000-custom-default
+  a2dissite 000-custom-default-redirect
+  a2dissite 000-custom-default-ssl
+  
+  a2enmod ssl
+  rm -f $APACHE_CONF_DIR/sites-available/default-ssl.conf
+
+  for virtualhost in $APACHE_CUSTOM_DIR/*.conf; do
+    virtualdomain=$(basename "$virtualhost" .conf)
+    if [ ! -f $CERTBOT_CONF_DIR/live/$virtualdomain/cert.pem ]; then
+      certbot certonly --no-self-upgrade --agree-tos --noninteractive --standalone \
+        --work-dir $CERTBOT_WORK_DIR --config-dir $CERTBOT_CONF_DIR --logs-dir $CERTBOT_LOG_DIR \
+        -m $EMAIL -d $virtualdomain
+        
+      if [ -f $CERTBOT_CONF_DIR/live/$virtualdomain/cert.pem ]; then
+        cp $APACHE_CUSTOM_DIR/$virtualhost $APACHE_CONF_DIR/sites-available/
+        a2ensite $virtualdomain
+      fi
     fi
-  else
-    flags=""
+  done
+  
+  flags=""
     if [ ! -z $FORCE_RENEWAL ]; then
       flags="$flags --force-renewal"
     fi
   
     certbot renew --no-random-sleep-on-renew --standalone --no-self-upgrade \
       --work-dir $CERTBOT_WORK_DIR --config-dir $CERTBOT_CONF_DIR --logs-dir $CERTBOT_LOG_DIR $flags
-  fi
 else
-  a2ensite 000-custom-default
+  if [ ! -z "$DOMAIN" ] && [ ! -z "$EMAIL" ]; then
+    if [ ! -f $CERTBOT_CONF_DIR/live/$DOMAIN/cert.pem ]; then
+      certbot certonly --no-self-upgrade --agree-tos --noninteractive --standalone \
+        --work-dir $CERTBOT_WORK_DIR --config-dir $CERTBOT_CONF_DIR --logs-dir $CERTBOT_LOG_DIR \
+        -m $EMAIL -d $DOMAIN
+      
+      if [ -f $CERTBOT_CONF_DIR/live/$DOMAIN/cert.pem ]; then
+        a2dissite 000-custom-default
+              
+        a2enmod rewrite && a2enmod ssl
+        rm -f $APACHE_CONF_DIR/sites-available/default-ssl.conf
+        
+        a2ensite 000-custom-default-redirect
+        a2ensite 000-custom-default-ssl
+      else
+        a2ensite 000-custom-default
+      fi
+    else
+      flags=""
+      if [ ! -z $FORCE_RENEWAL ]; then
+        flags="$flags --force-renewal"
+      fi
+    
+      certbot renew --no-random-sleep-on-renew --standalone --no-self-upgrade \
+        --work-dir $CERTBOT_WORK_DIR --config-dir $CERTBOT_CONF_DIR --logs-dir $CERTBOT_LOG_DIR $flags
+    fi
+  else
+    a2ensite 000-custom-default
+  fi
 fi
 
 if [ "$GIT" != "OFF" ]; then
