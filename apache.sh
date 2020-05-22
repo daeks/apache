@@ -6,7 +6,7 @@ if [ -f $APACHE_CUSTOM_DIR/crontab ]; then
 fi
 
 if [ -f $APACHE_CUSTOM_DIR/extension ]; then
-  bash $APACHE_CUSTOM_DIR/extension
+  source $APACHE_CUSTOM_DIR/extension
 fi
 
 if [ ! -z "$DOMAIN" ] && [ ! -z "$EMAIL" ]; then
