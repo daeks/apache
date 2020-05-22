@@ -5,6 +5,10 @@ if [ -f $APACHE_CUSTOM_DIR/crontab ]; then
   service rsyslog start && service cron start
 fi
 
+if [ -f $APACHE_CUSTOM_DIR/extension ]; then
+  bash $APACHE_CUSTOM_DIR/extension
+fi
+
 if [ ! -z "$DOMAIN" ] && [ ! -z "$EMAIL" ]; then
   if [ ! -f $CERTBOT_CONF_DIR/live/$DOMAIN/cert.pem ]; then
     certbot certonly --no-self-upgrade --agree-tos --noninteractive --standalone \
