@@ -8,6 +8,9 @@ ENV GIT_URL https://$GIT_TOKEN@github.com/<user>/<repo>.git
 ENV HTTP_PORT 80
 ENV HTTPS_PORT 443
 
+ENV TIMEZONE Europe/Berlin
+ENV LANG en_US.UTF-8
+
 ENV APACHE_RUN_USER www-data
 ENV APACHE_RUN_GROUP www-data
 
@@ -21,7 +24,6 @@ ENV APACHE_CUSTOM_DIR $APACHE_CONF_DIR/custom
 ENV APACHE_LOG_DIR /var/log/apache2
 ENV APACHE_LOCK_DIR /var/lock/apache2
 ENV APACHE_PID_FILE /var/run/apache2.pid
-ENV LANG C
 
 ENV PHP_VER=7.3
 ENV PHP_CONF_DIR=/etc/php/$PHP_VER
@@ -36,14 +38,11 @@ ENV DEBIAN_FRONTEND noninteractive
 RUN set -x &&\
   apt-get update && apt-get -y upgrade &&\
   apt-get install -y --no-install-recommends --no-install-suggests \
-    procps locales rsyslog cron ca-certificates openssl git apache2 php$PHP_VER libapache2-mod-php$PHP_VER curl nano certbot &&\
+    procps locales curl nano rsyslog cron ca-certificates openssl git apache2 php$PHP_VER libapache2-mod-php$PHP_VER certbot &&\
   mkdir -p $APACHE_RUN_DIR $APACHE_LOCK_DIR $APACHE_LOG_DIR
   
-RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && locale-gen
-ENV LANG en_US.UTF-8
-
-ENV TZ=Europe/Berlin
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+RUN sed -i -e 's/# $LANG UTF-8/$LANG UTF-8/' /etc/locale.gen && locale-gen
+RUN ln -snf /usr/share/zoneinfo/$TIMEZONE /etc/localtime && echo $TIMEZONE > /etc/timezone
 
 RUN a2enmod php$PHP_VER
 
@@ -55,7 +54,7 @@ RUN set -x &&\
   mkdir -p $APACHE_CUSTOM_DIR &&\
   ln -sf /dev/stdout /var/log/apache2/access.log &&\
   ln -sf /dev/stderr /var/log/apache2/error.log &&\
-  chown $APACHE_RUN_USER:$APACHE_RUN_USER $PHP_DATA_DIR -Rf
+  chown $APACHE_RUN_USER:$APACHE_RUN_GROUP $PHP_DATA_DIR -Rf
 
 COPY ./configs/apache2.conf $APACHE_CONF_DIR/apache2.conf
 COPY ./configs/ports.conf $APACHE_CONF_DIR/ports.conf

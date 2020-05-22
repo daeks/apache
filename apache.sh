@@ -1,6 +1,9 @@
 #!/bin/bash
 
-service rsyslog start && service cron start
+if [ -f $APACHE_CUSTOM_DIR/crontab ]; then
+  crontab $APACHE_CUSTOM_DIR/crontab
+  service rsyslog start && service cron start
+fi
 
 if [ ! -z "$DOMAIN" ] && [ ! -z "$EMAIL" ]; then
   if [ ! -f $CERTBOT_CONF_DIR/live/$DOMAIN/cert.pem ]; then
