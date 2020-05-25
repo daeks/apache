@@ -22,9 +22,11 @@ ENV APACHE_ENVVARS $APACHE_CONF_DIR/envvars
 ENV APACHE_CUSTOM_DIR $APACHE_CONF_DIR/custom
 ENV APACHE_OPT_DIR $APACHE_CUSTOM_DIR/opt
 
+ENV APACHE_RUN_DIR /var/run
 ENV APACHE_LOG_DIR /var/log/apache2
 ENV APACHE_LOCK_DIR /var/lock/apache2
-ENV APACHE_PID_FILE /var/run/apache2.pid
+ENV APACHE_PID_FILE $APACHE_RUN_DIR/apache2.pid
+ENV LANG C
 
 ENV PHP_VER=7.3
 ENV PHP_CONF_DIR=/etc/php/$PHP_VER
@@ -39,11 +41,9 @@ ENV DEBIAN_FRONTEND noninteractive
 RUN set -x &&\
   apt-get update && apt-get -y upgrade &&\
   apt-get install -y --no-install-recommends --no-install-suggests \
-    procps locales curl nano rsyslog cron ca-certificates openssl git apache2 php$PHP_VER libapache2-mod-php$PHP_VER certbot &&\
+    procps curl nano rsyslog cron ca-certificates openssl git apache2 php$PHP_VER libapache2-mod-php$PHP_VER certbot &&\
   mkdir -p $APACHE_RUN_DIR $APACHE_LOCK_DIR $APACHE_LOG_DIR
 
-ENV LANG en_US.UTF-8  
-RUN sed -i -e 's/# $LANG UTF-8/$LANG UTF-8/' /etc/locale.gen && locale-gen
 RUN ln -snf /usr/share/zoneinfo/$TIMEZONE /etc/localtime && echo $TIMEZONE > /etc/timezone
 
 RUN a2enmod php$PHP_VER
