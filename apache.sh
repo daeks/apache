@@ -27,6 +27,8 @@ if [ ! -z "$CUSTOM" ] && [ ! -z "$EMAIL" ]; then
         cp $virtualhost $APACHE_CONF_DIR/sites-available/
         a2ensite $virtualdomain
       fi
+    else
+      cp $virtualhost $APACHE_CONF_DIR/sites-available/
     fi
   done
   
