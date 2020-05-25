@@ -9,36 +9,45 @@ if [ -f $APACHE_CUSTOM_DIR/extension ]; then
   source $APACHE_CUSTOM_DIR/extension
 fi
 
-if [ ! -z "$CUSTOM" ] && [ ! -z "$EMAIL" ]; then
+if [ ! -z "$CUSTOM" ]; then
+  a2dissite 000-custom-default
   a2dissite 000-custom-default-redirect
   a2dissite 000-custom-default-ssl
   
-  a2enmod ssl
-  rm -f $APACHE_CONF_DIR/sites-available/default-ssl.conf
-
-  for virtualhost in $APACHE_CUSTOM_DIR/*.conf; do
+  for virtualhost in $APACHE_VHOSTS_DIR/*.conf; do
     virtualdomain=$(basename "$virtualhost" .conf)
-    if [ ! -f $CERTBOT_CONF_DIR/live/$virtualdomain/cert.pem ]; then
-      certbot certonly --no-self-upgrade --agree-tos --noninteractive --standalone \
-        --work-dir $CERTBOT_WORK_DIR --config-dir $CERTBOT_CONF_DIR --logs-dir $CERTBOT_LOG_DIR \
-        -m $EMAIL -d $virtualdomain
-        
-      if [ -f $CERTBOT_CONF_DIR/live/$virtualdomain/cert.pem ]; then
-        cp $virtualhost $APACHE_CONF_DIR/sites-available/
-        a2ensite $virtualdomain
-      fi
-    else
-      cp $virtualhost $APACHE_CONF_DIR/sites-available/
-    fi
+    /bin/cp -rf $virtualhost $APACHE_CONF_DIR/sites-available/
+    a2ensite $virtualdomain
   done
   
-  flags=""
-    if [ ! -z $FORCE_RENEWAL ]; then
-      flags="$flags --force-renewal"
-    fi
-  
-    certbot renew --no-random-sleep-on-renew --standalone --no-self-upgrade \
-      --work-dir $CERTBOT_WORK_DIR --config-dir $CERTBOT_CONF_DIR --logs-dir $CERTBOT_LOG_DIR $flags
+  if [ ! -z "$EMAIL" ]; then
+    a2enmod ssl
+    rm -f $APACHE_CONF_DIR/sites-available/default-ssl.conf
+
+    for virtualhost in $APACHE_SVHOSTS_DIR/*.conf; do
+      virtualdomain=$(basename "$virtualhost" .conf)
+      if [ ! -f $CERTBOT_CONF_DIR/live/$virtualdomain/cert.pem ]; then
+        certbot certonly --no-self-upgrade --agree-tos --noninteractive --standalone \
+          --work-dir $CERTBOT_WORK_DIR --config-dir $CERTBOT_CONF_DIR --logs-dir $CERTBOT_LOG_DIR \
+          -m $EMAIL -d $virtualdomain
+          
+        if [ -f $CERTBOT_CONF_DIR/live/$virtualdomain/cert.pem ]; then
+          /bin/cp -rf $virtualhost $APACHE_CONF_DIR/sites-available/
+          a2ensite $virtualdomain
+        fi
+      else
+        /bin/cp -rf $virtualhost $APACHE_CONF_DIR/sites-available/
+      fi
+    done
+    
+    flags=""
+      if [ ! -z $FORCE_RENEWAL ]; then
+        flags="$flags --force-renewal"
+      fi
+    
+      certbot renew --no-random-sleep-on-renew --standalone --no-self-upgrade \
+        --work-dir $CERTBOT_WORK_DIR --config-dir $CERTBOT_CONF_DIR --logs-dir $CERTBOT_LOG_DIR $flags
+  fi
 else
   if [ ! -z "$DOMAIN" ] && [ ! -z "$EMAIL" ]; then
     if [ ! -f $CERTBOT_CONF_DIR/live/$DOMAIN/cert.pem ]; then

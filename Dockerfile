@@ -21,6 +21,8 @@ ENV APACHE_ENVVARS $APACHE_CONF_DIR/envvars
 
 ENV APACHE_CUSTOM_DIR $APACHE_CONF_DIR/custom
 ENV APACHE_OPT_DIR $APACHE_CUSTOM_DIR/opt
+ENV APACHE_VHOSTS_DIR $APACHE_CUSTOM_DIR/vhosts
+ENV APACHE_SVHOSTS_DIR $APACHE_CUSTOM_DIR/svhosts
 
 ENV APACHE_RUN_DIR /var/run
 ENV APACHE_LOG_DIR /var/log/apache2
@@ -53,7 +55,7 @@ RUN set -x &&\
   rm $APACHE_CONF_DIR/sites-enabled/000-default.conf $APACHE_CONF_DIR/sites-available/000-default.conf &&\
   rm $APACHE_CONF_DIR/sites-available/default-ssl.conf &&\
   rm -r $APACHE_WWW_DIR/html &&\
-  mkdir -p $APACHE_CUSTOM_DIR &&\
+  mkdir -p $APACHE_CUSTOM_DIR && mkdir -p $APACHE_OPT_DIR && mkdir -p $APACHE_VHOSTS_DIR && mkdir -p $APACHE_SVHOSTS_DIR &&\
   ln -sf /dev/stdout /var/log/apache2/access.log &&\
   ln -sf /dev/stderr /var/log/apache2/error.log &&\
   chown $APACHE_RUN_USER:$APACHE_RUN_GROUP $PHP_DATA_DIR -Rf
