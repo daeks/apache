@@ -2,7 +2,7 @@
 
 if [ -f $APACHE_CUSTOM_DIR/crontab ]; then
   crontab $APACHE_CUSTOM_DIR/crontab
-  service rsyslog start && service cron start
+  service rsyslog restart && service cron restart
 fi
 
 if [ -f $APACHE_CUSTOM_DIR/extension ]; then
