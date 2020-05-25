@@ -24,7 +24,7 @@ if [ ! -z "$CUSTOM" ] && [ ! -z "$EMAIL" ]; then
         -m $EMAIL -d $virtualdomain
         
       if [ -f $CERTBOT_CONF_DIR/live/$virtualdomain/cert.pem ]; then
-        cp $APACHE_CUSTOM_DIR/$virtualhost $APACHE_CONF_DIR/sites-available/
+        cp $virtualhost $APACHE_CONF_DIR/sites-available/
         a2ensite $virtualdomain
       fi
     fi

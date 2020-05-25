@@ -9,7 +9,7 @@ ENV HTTP_PORT 80
 ENV HTTPS_PORT 443
 
 ENV TIMEZONE Europe/Berlin
-ENV LANG en_US.UTF-8
+
 
 ENV APACHE_RUN_USER www-data
 ENV APACHE_RUN_GROUP www-data
@@ -41,7 +41,8 @@ RUN set -x &&\
   apt-get install -y --no-install-recommends --no-install-suggests \
     procps locales curl nano rsyslog cron ca-certificates openssl git apache2 php$PHP_VER libapache2-mod-php$PHP_VER certbot &&\
   mkdir -p $APACHE_RUN_DIR $APACHE_LOCK_DIR $APACHE_LOG_DIR
-  
+
+ENV LANG en_US.UTF-8  
 RUN sed -i -e 's/# $LANG UTF-8/$LANG UTF-8/' /etc/locale.gen && locale-gen
 RUN ln -snf /usr/share/zoneinfo/$TIMEZONE /etc/localtime && echo $TIMEZONE > /etc/timezone
 
