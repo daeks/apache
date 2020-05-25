@@ -1,6 +1,7 @@
 #!/bin/bash
 
 if [ -f $APACHE_CUSTOM_DIR/crontab ]; then
+  printenv > /etc/environment
   crontab $APACHE_CUSTOM_DIR/crontab
   service rsyslog restart && service cron restart
 fi
