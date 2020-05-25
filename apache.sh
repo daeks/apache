@@ -10,7 +10,6 @@ if [ -f $APACHE_CUSTOM_DIR/extension ]; then
 fi
 
 if [ ! -z "$CUSTOM" ] && [ ! -z "$EMAIL" ]; then
-  a2dissite 000-custom-default
   a2dissite 000-custom-default-redirect
   a2dissite 000-custom-default-ssl
   
