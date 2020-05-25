@@ -38,6 +38,7 @@ if [ ! -z "$CUSTOM" ]; then
         fi
       else
         /bin/cp -rf $virtualhost $APACHE_CONF_DIR/sites-available/
+        a2ensite $virtualdomain
       fi
     done
     
