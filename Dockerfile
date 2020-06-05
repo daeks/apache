@@ -43,7 +43,7 @@ ENV DEBIAN_FRONTEND noninteractive
 RUN set -x &&\
   apt-get update && apt-get -y upgrade &&\
   apt-get install -y --no-install-recommends --no-install-suggests \
-    procps curl nano rsyslog cron ca-certificates openssl git apache2 php$PHP_VER libapache2-mod-php$PHP_VER certbot &&\
+    procps curl nano rsyslog cron ca-certificates openssl git apache2 php$PHP_VER php$PHP_VER-apcu libapache2-mod-php$PHP_VER certbot &&\
   mkdir -p $APACHE_RUN_DIR $APACHE_LOCK_DIR $APACHE_LOG_DIR
 
 RUN ln -snf /usr/share/zoneinfo/$TIMEZONE /etc/localtime && echo $TIMEZONE > /etc/timezone
